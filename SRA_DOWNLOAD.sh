@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#:oad Modules
+#Load Modules
 module load sratoolkit/2.11.1
 
 # Navigate to the directory containing the script
