@@ -1,0 +1,63 @@
+import plotly.graph_objs as go
+import plotly.offline as pyo
+import numpy as np
+
+# input data
+x_data = [1, 2, 3, 4, 5]
+y_data = [2, 4, 3, 1, 5]
+z_data = [3, 1, 2, 5, 4]
+
+# Create a color scale
+color_scale = [[0, '#1f77b4'], [0.5, '#ff7f0e'], [1, '#2ca02c']]
+z_min, z_max = min(z_data), max(z_data)
+mid_val = (z_max - z_min) / 2
+color_vals = np.interp(z_data, [z_min, mid_val, z_max], [0, 0.5, 1])
+colors = [color_scale[int(round(val * 2))] for val in color_vals]
+
+# Create scatter traece
+#size parameter here determines how big the points are on the graph, would need changing with clusters/ large amounts of data
+scatter_3d_chart = go.Scatter3d(x=x_data,
+                                 y=y_data,
+                                 z=z_data,
+                                 mode='markers',
+                                 marker=dict(color=colors,
+                                             size=5,
+                                             line=dict(width=2,
+                                                       color='DarkSlateGrey')))
+
+# layout
+layout = go.Layout(title='SRP 3D scatter',
+                   scene=dict(xaxis_title='X Axis Label',
+                              yaxis_title='Y Axis Label',
+                              zaxis_title='Z Axis Label',
+                              xaxis=dict(tickfont=dict(size=10)),
+                              yaxis=dict(tickfont=dict(size=10)),
+                              zaxis=dict(tickfont=dict(size=10))),
+                   font=dict(family='Arial',
+                             size=16),
+                   plot_bgcolor='rgb(240, 240, 240)',
+                   width=800,
+                   height=600)
+
+fig = go.Figure(data=[scatter_3d_chart], layout=layout)
+
+# Generate 
+div = pyo.plot(fig, include_plotlyjs=True, output_type='div')
+
+# Embed
+html = f"""
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+  {div}
+</body>
+</html>
+"""
+
+# Write
+with open('embedded_3d_scatter_plot_colour.html', 'w') as f:
+    f.write(html)
+
