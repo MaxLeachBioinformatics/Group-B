@@ -1,0 +1,56 @@
+import plotly.graph_objs as go
+import plotly.offline as pyo
+
+#Basic input data ~ obviously needs changing
+y_data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+x_data = ['Group A'] * 5 + ['Group B'] * 5
+error_data = [0.1] * 10
+
+# Create a box trace for the box plot - set boxpoints to all for all data to be shown, box mean displaying true mean
+
+box_plot = go.Box(y=y_data,
+                  x=x_data,
+                  boxpoints='outliers',
+                  marker=dict(color='#1f77b4'),
+                  line=dict(color='#1f77b4'),
+                  boxmean=True)
+
+# Scatter trace for error ranges with colour
+error_bars = go.Scatter(y=[y + err for y, err in zip(y_data, error_data)],
+                        x=x_data,
+                        mode='markers',
+                        line=dict(width=1,
+                                  color='#2ca02c'),
+                        showlegend=False)
+
+# Create the layout
+layout = go.Layout(title='SRP basic box plot',
+                   xaxis=dict(title='Label needed',
+                              tickfont=dict(size=14)),
+                   yaxis=dict(title='Log10ofIDK',
+                              tickfont=dict(size=14)),
+                   font=dict(family='Arial',
+                             size=16),
+                   plot_bgcolor='rgb(240, 240, 240)')
+
+fig = go.Figure(data=[box_plot, error_bars], layout=layout)
+
+# Generate
+div = pyo.plot(fig, include_plotlyjs=False, output_type='div')
+
+#Embed
+html = f"""
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+  {div}
+</body>
+</html>
+"""
+#Write
+with open('embedded_box_plot_detail.html', 'w') as f:
+    f.write(html)
+

@@ -1,0 +1,43 @@
+import plotly.graph_objs as go
+import plotly.offline as pyo
+
+# Data
+x_data = ['Expression A', 'Expression B', 'Expression C']
+y_data = [15, 30, 20]
+
+bar_chart = go.Bar(x=x_data,
+                   y=y_data,
+                   marker=dict(color='#1f77b4'))
+
+# Create the layout 
+layout = go.Layout(title='SRP Bar Chart BASIC',
+                   xaxis=dict(title='Label needed',
+                              tickfont=dict(size=14)),
+                   yaxis=dict(title='Label needed',
+                              tickfont=dict(size=14)),
+                   font=dict(family='Arial',
+                             size=16),
+                   plot_bgcolor='rgb(240, 240, 240)')
+
+fig = go.Figure(data=[bar_chart], layout=layout)
+
+# Generate within HTML
+div = pyo.plot(fig, include_plotlyjs=True, output_type='div')
+
+# Embed
+html = f"""
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+  {div}
+</body>
+</html>
+"""
+
+# Write to file
+with open('embedded_bar_chart_detail.html', 'w') as f:
+    f.write(html)
+
