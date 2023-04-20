@@ -1,4 +1,5 @@
 ##if packages are not already installed in R then install, installation shown in comments
+## reference for scde error modelling: https://hms-dbmi.github.io/scde/diffexp.html
 
 
 #devtools::install_version('flexmix', '2.3-13') this version of flexmix is needed to be downloaded before SCDE version 1.99.1
