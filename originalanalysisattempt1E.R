@@ -25,7 +25,7 @@ data[,1:466] <- sapply(data[,1:466], as.integer)
 clean_data <- clean.counts(data, min.lib.size=466, min.reads = 1, min.detected = 1)
 
 ##fit error model to each cell
-##  fit an error model to each cell and filter out cells that did not show positive correlation with the expected expression magnitudes.
+##  fit an error model to each cell and filter out cells 
 
 
 model <- scde.error.models(counts = clean_data, n.cores = 4, threshold.segmentation = TRUE, save.crossfit.plots = FALSE, save.model.plots = FALSE, verbose = 1)
@@ -50,7 +50,7 @@ dl <- mclapply(1:n.simulations,function(i) {
   rownames(scd1) <- rownames(clean_data); 
   # calculate correlation on the complete observation pairs
   cor(log10(scd1+1),use="pairwise.complete.obs");
-}, mc.cores <- parallelly::availableCores()/2 ##parallel::detectCores() / 2  ##mc.cores = parallely:AvailableCores()/2
+}, mc.cores <- parallelly::availableCores()/2 
 )
 ##pairwisedistancematrix
 # calculate average distance across sampling rounds
