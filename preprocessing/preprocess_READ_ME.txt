@@ -1,0 +1,1 @@
+Please kindly put the acc_list.txt into the directory, "/lustre/alice3/scratch/spectre/(urUID path, e.g.y/yyl23)/sradata". Other preprocessing scripts can be run from anywhere in your home or scratch directory.

@@ -1,0 +1,77 @@
+#!/bin/bash
+
+#PBS -N PRINSEQ_paired_Fastqc
+#PBS -o stdout_PRINSEQ_Fastqc.out
+#PBS -e stderr_PRINSEQ_Fastqc.error
+#PBS -l walltime=120:00:00
+#PBS -l vmem=64gb
+#PBS -l nodes=1:ppn=8
+#PBS -m bea
+#PBS -A (UID)@student.le.ac.uk
+
+#***************************************************************************************************************
+# Authors:Friday
+# Modified Date:13-03-2023 BST 22:00
+# Version: 1.0
+
+# This script aims to subject the fastqdumped RNAseq paired-end reads to prinseq trimming and then quality checking with fastqc for any overrepresented sequence. The file is designed to be submitted as a job to the PBS scheduler of a clustering enviornment operating, e.g. Alice and Dlal2.5. Requirement: acc_list existed in sradata directory.
+
+#************************************************************************************************************
+
+# load fastqc
+module load fastqc/0.11.5
+
+# Set OMP_NUM_THREADS for OpenMP jobs
+export OMP_NUM_THREADS=$PBS_NUM_PPN
+
+# set variable
+SRADIR="/lustre/alice3/scratch/spectre/(UID, e.g. y/yyl23)/sradata"
+
+# Get the system time
+now="$(date +"%c")"
+
+echo "$now - fastqc Started"
+
+cd $SRADIR
+
+# Read accession numbers from the file and store in an array
+mapfile -t ACCESSIONS < $SRADIR/acc_list.txt
+
+# Get Prinseq-lite binary and unzip the installation folder
+wget https://sourceforge.net/projects/prinseq/files/standalone/prinseq-lite-0.20.4.tar.gz/download
+mv download prinseq-lite-0.20.4.tar.gz
+tar -xvzf prinseq-lite-0.20.4.tar.gz
+
+# Get fastqc and unzip
+# wget https://www.bioinformatics.babraham.ac.uk/projects/fastqc/fastqc_v0.12.1.zip
+# unzip fastqc_v0.12.1.zip
+
+# make a directory to store fastqc reports
+mkdir -p $SRADIR/fastqcoutput
+
+# Create a new directory to pre-process dataset and copy the fastq files into it
+mkdir -p $SRADIR/preprocess
+echo "Copying fastqdump to new location. Please wait."
+cp ./fastqdump/*fastq ./preprocess
+cd $SRADIR/preprocess
+
+# Loop through each accession number and download the corresponding file
+for ACCESSION in "${ACCESSIONS[@]}"
+do
+  echo "PrinSeq-ing: $ACCESSION"
+  perl ../prinseq-lite-0.20.4/prinseq-lite.pl -verbose -fastq "${ACCESSION}_1.fastq" -fastq2 "${ACCESSION}_2.fastq" -out_format 3 -out_bad null -min_len 30 -trim_left 10 -trim_qual_right 25 -lc_method entropy -lc_threshold 65
+done
+echo "$now  PrinSeq Completed" 
+
+
+#cat $SRADIR/acc_list_sorted.txt | xargs -I{} perl ../prinseq-lite.pl -verbose -fastq $SRADIR/fastqdump/{}_1.fastq -fastq2 $SRADIR/fastqdump/{}_2.fastq -out_format 3 -out_bad null -min_len 30 -trim_left 10 -trim_qual_right 25 -lc_method entropy -lc_threshold 65
+
+# Run fastqc to screen for overrepresented sequences and generates the analysis output in a text file. Alternatively SRR19*good_!(*singletons*) parenthized non-glob-match could be used
+fastqc --threads $PBS_NUM_PPN --outdir="$SRADIR/fastqcoutput" SRR19*good_????.fastq
+
+# Unzip outfast to get .txt for parser to work
+cd $SRADIR/fastqcoutput
+unzip '*.zip'
+
+echo "fastqc Completed" | mail -s "fastqc completed" (UID)@student.le.ac.uk
+
