@@ -1,0 +1,45 @@
+#!/bin/bash
+
+#PBS -N STAR_align_trimmed_good
+#PBS -o stdout_STAR_trimmed_good.out
+#PBS -e stderr_STAR_trimmed_good.error
+#PBS -l walltime=24:00:00    # Each trimmed file took <1 - 2 mins to run in test run
+#PBS -l vmem=70gb
+#PBS -l nodes=1:ppn=10
+#PBS -m bea
+#PBS -A (urUID)@student.le.ac.uk
+
+
+#***************************************************************************************************************
+# Authors:Friday
+# Modified Date:15-03-2023 BST 14:45
+# Version: 1.0
+
+# This script maps the Prinseq trimmed good sequences in pairs to hg19 genome with STAR. The input files should be the output files from Prinseq, which are named SRR...._1_prinseq_good_???? and SRR...._2_prinseq_good_????.  All the accession would be store in a .txt file named acc_list.txt, from which the accessions are fed into STAR function as an argument. Unlike the other script to pipe raw data into STAR, this script does not pipe argument to xargs -I{}. Prinseq trimming introduces variables into the filename, with the last 4 characters being randomly generated, and can be any of non-whitespace characters. The shell would expand wildcards (or tries to) before passing them as arguments to xargs, and look for filename start with "{}_1_prinseq_good", which fails, and finally the unexpanded argument reaches xargs, which replaces the "{}" with the actual prefix, but then it would be too late for the ???? part to be treated as a wildcard. Therefore a shell loop is used instead - the shell substitutes $SRADIR and ${prefix} before expanding the wildcards.  This function is written for pair-end reads and any unmatch in sequence input could jeopardise the output.
+
+#The file is designed to be submitted as a job to the PBS scheduler of a clustering enviornment operating, e.g. Alice and Dlal2.5. Requirement: acc_list existed in sradata directory.
+
+#***************************************************************************************************************
+
+# load STAR
+module load star/2.7.9a
+
+# Set OMP_NUM_THREADS for OpenMP jobs
+export OMP_NUM_THREADS=$PBS_NUM_PPN
+
+# set variable
+SRADIR="/lustre/alice3/scratch/spectre/(urUID path, e.g.y/yyl23)/sradata"
+
+# Get the system time
+now="$(date +"%c")"
+
+# Create an ouput directory
+mkdir -p $SRADIR/BAM_files_trimmed
+
+# Alingment of pair-ended reads to the hg19 genome with output in bam format using a shell loop reading the list of accessions from acc_list.txt as preflix argument into STAR. Wildcard ???? used to accomdate the randomly generated non-whitespace character of the Prinseq Output.  Double-quotes are added around the variable expansions to maintain general scripting hygiene.
+while read prefix; do
+    STAR --runThreadN $PBS_NUM_PPN --runMode alignReads --genomeDir $SRADIR/ensembl_starindex_2.7.9a --readFilesIn "$SRADIR/preprocess/${prefix}_1_prinseq_good_"????.fastq "$SRADIR/preprocess/${prefix}_2_prinseq_good_"????.fastq  --outFileNamePrefix "$SRADIR/BAM_files_trimmed/${prefix}_good" --outSAMtype BAM SortedByCoordinate --outFilterType BySJout --outFilterMultimapNmax 20 --alignSJoverhangMin 8 --alignSJDBoverhangMin 1 --outFilterMismatchNmax 999 --outFilterMismatchNoverLmax 0.04 --alignIntronMin 20 --alignIntronMax 1000000 --alignMatesGapMax 1000000 --outSAMstrandField intronMotif
+done <$SRADIR/acc_list.txt
+
+echo ----
+echo "Job ended" | mail -s "Mapping has completed" (UID)@student.le.ac.uk

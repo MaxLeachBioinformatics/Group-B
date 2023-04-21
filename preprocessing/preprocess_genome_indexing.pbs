@@ -1,0 +1,54 @@
+#!/bin/bash
+
+#PBS -N STAR_hg19_index
+#PBS -o stdout_hg19index.out
+#PBS -e stderr_hg19index.error
+#PBS -l walltime=4:00:00   # should take less than 20 mins for human genome 
+#PBS -l vmem=64gb
+#PBS -l nodes=1:ppn=24
+#PBS -m bea
+#PBS -A (urUID)@student.le.ac.uk
+
+#***************************************************************************************************************
+# Authors:Friday
+# Modified Date:13-03-2023 BST 18:00
+# Version: 1.0
+
+# This script will generate genome indices for STAR-aligner prior to the RNAseq mapping and qualitification. The file is designed to be submitted as a job to the PBS scheduler of a clustering enviornment operating, e.g. Alice and Dlal2.5.
+
+#***************************************************************************************************************
+
+# load STAR
+module load star/2.7.9a
+
+# Set OMP_NUM_THREADS for OpenMP jobs
+export OMP_NUM_THREADS=$PBS_NUM_PPN
+
+# Get the system time
+now="$(date +"%c")"
+
+# set variable
+SRADIR="/lustre/alice3/scratch/spectre/(UrUIDpath, e.g. y/yyl23)/sradata"
+
+echo ----
+echo "Job started at $now"
+echo ----
+echo "This job is working on compute node `cat $PBS_NODEFILE`"
+
+# Create an input and an ouput directory
+mkdir -p $SRADIR/ensembl_starindex_2.7.9a
+mkdir -p $SRADIR/genome_reference_ENSEMBL_raw
+
+cd $SRADIR/genome_reference_ENSEMBL_raw
+
+# Download GRCh37 (hg19) ENSEMBL genome and annotation files and unzip them
+wget https://ftp.ensembl.org/pub/release-75/fasta/homo_sapiens/dna/Homo_sapiens.GRCh37.75.dna.primary_assembly.fa.gz
+wget https://ftp.ensembl.org/pub/release-75/gtf/homo_sapiens/Homo_sapiens.GRCh37.75.gtf.gz
+gzip -d Homo_sapiens.GRCh37.75.dna.primary_assembly.fa.gz
+gzip -d Homo_sapiens.GRCh37.75.gtf.gz
+
+# indexing hg19; overhang set to 99 as for Illumina 2x100b paired-end reads, the ideal value is 100-1=99.
+STAR --runThreadN $PBS_NUM_PPN --runMode genomeGenerate --genomeDir $SRADIR/ensembl_starindex_2.7.9a --genomeFastaFiles "$SRADIR/genome_reference_ENSEMBL_raw/Homo_sapiens.GRCh37.75.dna.primary_assembly.fa" --sjdbGTFfile "$SRADIR/genome_reference_ENSEMBL_raw/Homo_sapiens.GRCh37.75.gtf" --sjdbOverhang 99
+
+echo ----
+echo "Job ended"  | mail -s "GRCh37.75 indexing has completed" (UID)@student.le.ac.uk
