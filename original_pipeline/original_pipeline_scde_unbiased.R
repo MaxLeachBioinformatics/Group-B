@@ -41,7 +41,7 @@ counts <- df[rowSums(df)>0,]
 nGenes <- length(counts[,1])
 
 # Generate error model WITHOUT supplying groups, therefore all cells are considered as a whole
-scde.fitted.model.unbiased <- scde.error.models(counts = counts, n.cores = parallel::availableCores() / 2, threshold.segmentation = TRUE, save.crossfit.plots = FALSE, save.model.plots = FALSE, verbose = 1)
+scde.fitted.model.unbiased <- scde.error.models(counts = counts, n.cores = parallelly::availableCores() / 2, threshold.segmentation = TRUE, save.crossfit.plots = FALSE, save.model.plots = FALSE, verbose = 1)
 
 # filter out cells that don't show positive correlation with
 # the expected expression magnitudes (very poor fits)
@@ -76,7 +76,7 @@ reciprocal.dist <- as.dist(1 - do.call(rbind, mclapply(cell.names, function(nam1
     pnf <- sqrt((1-f1)*(1-f2))*k +(1-k); 
     boot::corr(log10(cbind(counts[, nam1], counts[, nam2])+1), w = pnf)
   }))
-},mc.cores = availableCores()/2)), upper = FALSE)
+},mc.cores = parallelly::availableCores()/2)), upper = FALSE)
 
 # saving output
 save(reciprocal.dist,file="reciprocal.distance_unbiased.RData")
