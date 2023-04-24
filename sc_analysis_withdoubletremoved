@@ -1,0 +1,169 @@
+import scanpy as sc
+import pandas as pd
+import numpy as np 
+import matplotlib.pyplot as plt 
+import scrublet as scr
+
+from platform import python_version
+
+print(python_version())
+
+
+# Reading the file and creating an adata object
+#file = 'GSE67835_CPM_log10.tsv'
+file = '/home/jl690/Downloads/GSE67835_CPM_named_clean.tsv'
+
+adata = sc.read_text(file, delimiter='\t').T 
+sc.settings.verbosity = 3
+sc.settings.set_figure_params(dpi=80, facecolor='white')
+
+adata
+
+results_file = 'brain.h5ad' 
+
+# Doublet removal <- this didnt work so well, so I'm going to move on
+#Detect doublets using scr
+scrub = scr.Scrublet(adata.X)
+doublet_score, predicted_doublets = scrub.scrub_doublets(min_counts=2, min_cells=3)
+
+#Add to adata
+adata.obs['scrublet_scores'] = doublet_score
+adata.obs['scrublet_predicted_doublets'] = predicted_doublets
+
+#Remove
+adata = adata[~adata.obs['scrublet_predicted_doublets'], :]
+
+adata 
+# sc.pp.filter_genes(adata, min_cells=10)
+# scvi.model.SCVI.setup_anndata(adata)
+# vae = scvi.model.SCVI(adata)
+# vae.train()
+
+
+# solo = scvi.external.SOLO.from_scvi_model(vae)
+# solo.train()
+
+# Visualisation of the top 20 highest expresses genes
+sc.pl.highest_expr_genes(adata, n_top=20, )
+
+# This can be used to find the cell and gene names
+# adata.var_names
+# adata.obs_names
+
+# Simple filtering 
+#sc.pp.filter_cells(adata, min_genes=200)
+#sc.pp.filter_genes(adata, min_cells=3)
+
+# Adds a column with a boolean whether a mitochrondrial gene is present
+adata.var['mt'] = adata.var_names.str.startswith('MT-')
+
+# Visualising the genes which are mitochondrial
+adata.var[adata.var.mt == True]
+
+sc.pp.calculate_qc_metrics(adata, qc_vars=['mt'], percent_top=None, log1p=False, inplace=True)
+
+adata
+
+# Violin plots for number of genes expressed in the matrix, total counts per cell and % counts in mt cells
+sc.pl.violin(adata, ['n_genes_by_counts', 'total_counts', 'pct_counts_mt'], jitter=0.4, multi_panel=True)
+
+# Identifying the cell that has over 50% mitochondrial genes
+adata.obs[adata.obs.pct_counts_mt > 50]
+
+sc.pl.scatter(adata, x='total_counts', y='pct_counts_mt')
+sc.pl.scatter(adata, x='total_counts', y='n_genes_by_counts')
+
+# Selecting genes that have a % mitochondrial count of 10%
+adata = adata[adata.obs.pct_counts_mt < 10, :]
+
+sc.pp.log1p(adata)
+
+# Highly variable genes using default values
+
+sc.pp.highly_variable_genes(adata, n_top_genes=4000, flavor='seurat_v3')
+
+sc.pl.highly_variable_genes(adata)
+adata.var[adata.var.highly_variable]
+
+
+
+adata.raw = adata
+
+# Filtering out the genes that aren't highly variable
+adata = adata[:, adata.var.highly_variable]
+
+sc.pp.regress_out(adata, ['total_counts', 'pct_counts_mt'])
+
+sc.pp.scale(adata, max_value=10)
+
+
+sc.tl.pca(adata, svd_solver='arpack')
+
+sc.pl.pca(adata, color='CST3')
+
+sc.pl.pca_variance_ratio(adata, log=True)
+
+adata.write(results_file)
+
+adata
+
+sc.pp.neighbors(adata, n_neighbors=30, n_pcs=40)
+
+sc.tl.tsne(adata)
+
+sc.pl.tsne(adata, color=['CST3', 'NKG7', 'PPBP'])
+
+sc.tl.leiden(adata, resolution=1.2)
+
+sc.pl.tsne(adata, color=['leiden', 'CST3', 'NKG7'])
+
+# Plots the top 20 genes per cluster
+sc.tl.rank_genes_groups(adata, 'leiden', method='wilcoxon')
+sc.pl.rank_genes_groups(adata, n_genes=20, sharey=False)
+
+
+# Identifying the genes in the first cluster
+print(adata.uns['rank_genes_groups']['names']['0'])
+
+sc.get.rank_genes_groups_df(adata, None)
+
+table = 'SraRunTable.txt'
+
+sra_table = pd.read_csv(table)
+matrix = pd.read_csv(file, delimiter='\t')
+
+# samples is a dictionary containing sample identifier as key and a list of cells as values
+samples = {}
+for index, sample in enumerate(sra_table.experiment_sample_name):
+    samples.setdefault(sample, []).append(sra_table.Run[index])
+
+# this code visualises the individual samples within the count matrix
+# for sample in samples.values():
+#     print(matrix[matrix.columns[matrix.columns.isin(sample)]])
+
+adata.obs['sample_identifier'] = False
+
+
+for index, row in enumerate(adata.obs_names):
+    for key, value in samples.items():
+        if row in value:
+            adata.obs.sample_identifier.iloc[index] = key    
+adata.obs
+
+cell_type = {"0":"GABAergic neurons/Interneurons",
+"1":"Dendrituc cells, Monocytes, Macrophages",
+"2":"Developing neurons",
+"3":"Astrocytes",
+"4":"Oligodendrocytes",
+"5":"Pyramidal cells",
+"6":"Oligodendrocyte Progenitor Cells(OPCs)",
+"7":"Cortical neurons",
+"8":"Interneurons",
+"9":"Radial glial cells/Neural Progenitor cells",
+    }
+
+adata.obs['cell type'] = adata.obs.leiden.map(cell_type)
+
+sc.pl.tsne(adata, color = ['sample_identifier'], frameon = False)
+
+
