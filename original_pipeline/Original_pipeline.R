@@ -1,6 +1,6 @@
 # Authors:Friday
-# Modified Date:23-04-2023 BST 22:10
-# Version: 1.0
+# Modified Date:25-04-2023 BST 00:00
+# Version: 1.1
 
 ##in terminal
 #sudo apt install cmake
@@ -19,6 +19,7 @@
 #devtools::install_github("jlmelville/smallvis", subdir = "smallvis")
 
 #BiocManager::install(c("FactoMineR"))
+
 #################################################################################
 #################################################################################
 require(scde)
@@ -36,8 +37,6 @@ library(FactoMineR)
 library(igraph)
 library(fields)
 require(RColorBrewer)
-
-
 
 # Set working directory
 setwd("/home/yyl23/Documents/Lectures/BS7120_SteeredResearchProject/Script")
