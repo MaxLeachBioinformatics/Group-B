@@ -1,0 +1,30 @@
+#!/bin/bash
+
+#PBS -N R_parallel_unbaised_500n
+#PBS -o R_parallel_unbaised_500n.out
+#PBS -e R_parallel_unbaised_500n.error
+#PBS -l walltime=48:00:00
+#PBS -l vmem=128gb
+#PBS -l nodes=36:ppn=1
+#PBS -m bea
+#PBS -A yyl23@student.le.ac.uk
+
+#***************************************************************************************************************
+# Authors:Friday
+# Modified Date:
+# Version: 1.0
+
+#
+
+#***************************************************************************************************************
+
+# load R
+module load R
+
+WORKDIR="/home/y/yyl23/R_analysis/BS7120"
+
+cd $WORKDIR
+
+# invoke R
+R --no-save -q -f original_pipeline_scde_unbiased.R
+

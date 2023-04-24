@@ -1,0 +1,51 @@
+#!/bin/bash
+
+#PBS -N HTseq
+#PBS -o stdout_HTseq_paired_trimmed.out
+#PBS -e stderr_HTseq_paired_trimmed.error
+#PBS -l walltime=60:00:00    # Each trimmed file took <1 - 2 mins to run in test run
+#PBS -l vmem=36gb
+#PBS -l nodes=1:ppn=8
+#PBS -m bea
+#PBS -A yyl23@student.le.ac.uk
+
+
+#***************************************************************************************************************
+# Authors:Friday
+# Modified Date:21-03-2023 BST 20:30
+# Version: 1.0
+
+# This script 
+
+#setting up miniconda3
+#wget https://repo.anaconda.com/miniconda/Miniconda3-py310_23.1.0-1-Linux-x86_64.sh
+#cd /home/y/yyl23/Downloads
+#bash Miniconda3-latest-Linux-x86_64.sh/home/y/yyl23/Downloads
+#conda config --set auto_activate_base false
+#conda create -n BS7120 python pandas numpy scipy statsmodels seaborn matplotlib scikit-learn
+#conda activate BS7120
+# take a while
+#pip install pysam
+#pip install HTSeq
+
+#https://researchcomputing.princeton.edu/support/knowledge-base/python
+#https://edbennett.github.io/high-performance-python/aio.html
+#***************************************************************************************************************
+
+
+# activate previously set environment
+source /home/y/yyl23/miniconda3/bin/activate BS7120
+
+# set variable
+SRADIR="/lustre/alice3/scratch/spectre/y/yyl23/sradata"
+
+# Create an ouput directory
+mkdir -p $SRADIR/HTseqCounts
+
+# Initate htseq count to count mapping BAMs file against reference annotation
+while read prefix; do
+    htseq-count --mode=intersection-nonempty --stranded=no --format=bam --order=pos --type=exon "$SRADIR/BAM_files_trimmed/${prefix}_goodAligned".sortedByCoord.out.bam "$SRADIR/genome_reference/ENSEMBL_raw/Homo_sapiens.GRCh37.75.gtf" > "$SRADIR/HTseqCounts/${prefix}".count.tab
+done < "$SRADIR/acc_list.txt"
+
+echo ----
+echo "Job ended" | mail -s "HTseqCount has completed" yyl23@student.le.ac.uk
