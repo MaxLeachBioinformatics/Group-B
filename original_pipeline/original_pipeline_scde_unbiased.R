@@ -66,7 +66,9 @@ o.fpm <- scde.expression.magnitude(scde.fitted.model.unbiased, counts = counts)
 # to pairs of observations where a gene expressed (on average) at a level x1 observed 
 # in a cell c1 would not be likely to fail in a cell c2
 # Using direct weighting without modifying "nam" would lead a mismatch error
-k <- 0.95;
+n.simulations <- 500; k <- 0.95;
+cell.names <- colnames(counts); names(cell.names) <- cell.names;
+
 reciprocal.dist <- as.dist(1 - do.call(rbind, mclapply(cell.names, function(nam1) {
   unlist(lapply(cell.names, function(nam2) {
     # reciprocal probabilities

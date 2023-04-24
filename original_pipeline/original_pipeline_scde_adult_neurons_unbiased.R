@@ -43,7 +43,9 @@ write.csv(as.data.frame(as.matrix(scde.fitted.model.neu.unbiased)), file="scde_n
 o.fpm <- scde.expression.magnitude(scde.fitted.model.neu.unbiased, counts = df_neu)
 
 # Reciprocal weighting to generate correlation matrix
-k <- 0.95;
+n.simulations <- 500; k <- 0.95;
+cell.names <- colnames(df_neu); names(cell.names) <- cell.names;
+
 reciprocal.dist <- as.dist(1 - do.call(rbind, mclapply(cell.names, function(nam1) {
   unlist(lapply(cell.names, function(nam2) {
     # reciprocal probabilities
