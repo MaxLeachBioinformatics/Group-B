@@ -267,6 +267,30 @@ fetal.groups <- factor(fetal.cell.labels,levels=c("FQU","FRE"))
 fetal_color <- fetal.groups[as.numeric(fetal.groups)]
 #table(fetal_color)
 
+# PCA of fetal
+# transpose df
+df_fetal_1 <- data.frame(t(df_fetal[]))
+colnames(df_fetal_1) <- df_fetal[, 1]
+
+# transform to make more data normal
+df_fetal_1 <- log10(as.matrix(df_fetal_1)+1)
+
+# Factorise group
+cell.labels_raw <- substr(rownames(df_fetal_1),0,3)
+groups_fetal <- factor(cell.labels_raw,levels=c("FQU","FRE"))
+
+# Run PCA
+set.seed(42)
+pca_result <- PCA(df_fetal_1, scale.unit = TRUE, ncp=5, graph =T)
+
+# View the tables of eigenvalues and the percentages of inertia associated with each axis, each cells and distance from the cloud's centre of gravity, the result of the each component including its coordinate value, its quality of representation on the axis given by the squared cosine 
+summary(pca_result)
+
+# show the grap, named and coloured 
+fviz_pca_ind(pca_result, geom = c("point", "text"), label = "all", invisible = "none", labelsize = 2, pointsize = 0.5,, xlim = c(-60, 100), ylim = c(-25, 43))
+fviz_pca_ind(pca_result, geom = c("point"), label = "all", invisible = "none", pointsize = 1, col.ind = groups_fetal, palette = c("#AA00FF", "#FF00AA"), addEllipses = TRUE, ellipse.level = 0.95, legend.title = "Cell_types", xlim = c(-80, 100), ylim = c(-45, 120))
+
+# MST
 # read the fetal pairwise distance csv file
 reciprocal.dist.fetal <- read.csv("reciprocal_dist_fetal_group.csv", sep = ",")
 rownames(reciprocal.dist.fetal) <- reciprocal.dist.fetal$X
