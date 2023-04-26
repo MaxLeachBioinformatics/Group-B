@@ -232,7 +232,7 @@ cell.labels <- substr(colnames(df),0,3)
 groups <- factor(cell.labels,levels=c("AST","NEU","MIC","OLI","OPC", "END", "HYB", "FQU","FRE"))  # Note that principal component analysis generally separates our subpopulations based on their expected group labels. 
 
 # Perform metric MDS, or PoCA, and convert the matrix of Euclidean distances into a centered Gram matrix, which can be directly used to perform PCA via eigendecomposition
-cg_matrix <- cmdscale(reciprocal.dist)
+cg_matrix <- cmdscale(reciprocal.dist, eig=TRUE, k=2)
 
 # plot solution
 x <- cg_matrix$points[,1]
