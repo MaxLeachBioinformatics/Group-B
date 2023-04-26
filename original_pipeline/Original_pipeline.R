@@ -174,35 +174,8 @@ plot(mc, what = 'uncertainty') # uncertainty plot to show which part of the data
 dev.off()
 
 
-
 ## Principal component analysis (PCA) 
 # A linear dimensionality reduction method to summarize the data into 2 dimensions and then visually identify obvious clusters.
-
-# load df and factorise group
-df <- read.csv("GSE67835_transformedRenamed_nolog_notrounded.tsv", sep = "\t")
-rownames(df) <- df$Gene_Name
-df$Gene_Name <- NULL
-cell.labels <- substr(colnames(df),0,3)
-groups <- factor(cell.labels,levels=c("AST","NEU","MIC","OLI","OPC", "END", "HYB", "FQU","FRE"))  # Note that principal component analysis generally separates our subpopulations based on their expected group labels. 
-
-# Perform multidimensional scaling (MDS) and convert the matrix of Euclidean distances into a centered Gram matrix, which can be directly used to perform PCA via eigendecomposition
-cg_matrix <- cmdscale(reciprocal.dist)
-
-# Run PCA
-set.seed(42)
-pca_result <- PCA(cg_matrix, scale.unit = TRUE, ncp=5, graph =T)
-
-# pca graph of variables are so clouded with each cells layered on-top of each other which is difficult to interpret
-fviz_pca_ind(pca_result, geom.ind = "point", col.ind = groups, palette = c("#FF0000", "#FFAA00", "#AAFF00", "#00FF00", "#00FFAA", "#00AAFF", "#0000FF", "#AA00FF", "#FF00AA"), addEllipses = TRUE, legend.title = "Cell_types")
-# Each axis tells you roughly how much variation of the dataset is represented by each of the dimensions; astrocyte group is separated out especially in dimension 2 from the other group as well as fetal quiescent from the adult cell types, indicating an unique gene expression patterns compared to the others.
-# the centroid point for the group did not overlap for AST in PCA space; while over gene expression patterns were relatively similarly
-
-png("MDS.png", width = 800, height = 800)
-fviz_pca_ind(pca_result, geom.ind = "point", col.ind = groups, palette = c("#FF0000", "#FFAA00", "#AAFF00", "#00FF00", "#00FFAA", "#00AAFF", "#0000FF", "#AA00FF", "#FF00AA"), addEllipses = TRUE, legend.title = "Cell_types")
-dev.off()
-
-
-# Run actual PCA using raw gene expression data
 # Set global parameters:
 options(ggrepel.max.overlaps = Inf)
 
@@ -232,10 +205,12 @@ summary(pca_result_raw)
 # Description of the dimensions
 #dimdesc(pca_result_raw)
 
+# pca graph of variables are so clouded with each cells layered on-top of each other which is difficult to interpret
 #plot(pca_result_raw, cex=0.6, invisible = "none", select="cos2 0.5", title="Individual PCA graph")
 #plot(pca_result_raw, cex=0.6, select="contrib 10", title="Individual PCA graph")
 
 # show the grap, named and coloured 
+# Each axis tells you roughly how much variation of the dataset is represented by each of the dimensions
 fviz_pca_ind(pca_result_raw, geom = c("point", "text"), label = "all", invisible = "none", labelsize = 2, pointsize = 0.5,, xlim = c(-60, 100), ylim = c(-25, 43))
 fviz_pca_ind(pca_result_raw, geom = c("point"), label = "all", invisible = "none", pointsize = 1, col.ind = groups_raw, palette = c("#FF0000", "#FFAA00", "#AAFF00", "#00FF00", "#00FFAA", "#00AAFF", "#0000FF", "#AA00FF", "#FF00AA"), addEllipses = TRUE, ellipse.level = 0.95, legend.title = "Cell_types", xlim = c(-80, 100), ylim = c(-30, 45))
 
@@ -246,6 +221,36 @@ dev.off()
 png("PCA_grouped.png", width = 800, height = 800)
 fviz_pca_ind(pca_result_raw, geom = c("point"), label = "all", invisible = "none", pointsize = 1, col.ind = groups_raw, palette = c("#FF0000", "#FFAA00", "#AAFF00", "#00FF00", "#00FFAA", "#00AAFF", "#0000FF", "#AA00FF", "#FF00AA"), addEllipses = TRUE, ellipse.level = 0.95, legend.title = "Cell_types", xlim = c(-80, 100), ylim = c(-30, 45))
 dev.off()
+
+
+## Multidimensional scaling (MDS)
+# load df and factorise group
+df <- read.csv("GSE67835_transformedRenamed_nolog_notrounded.tsv", sep = "\t")
+rownames(df) <- df$Gene_Name
+df$Gene_Name <- NULL
+cell.labels <- substr(colnames(df),0,3)
+groups <- factor(cell.labels,levels=c("AST","NEU","MIC","OLI","OPC", "END", "HYB", "FQU","FRE"))  # Note that principal component analysis generally separates our subpopulations based on their expected group labels. 
+
+# Perform metric MDS, or PoCA, and convert the matrix of Euclidean distances into a centered Gram matrix, which can be directly used to perform PCA via eigendecomposition
+cg_matrix <- cmdscale(reciprocal.dist)
+
+# plot solution
+x <- cg_matrix$points[,1]
+y <- cg_matrix$points[,2]
+plot(x, y, xlab="Coordinate 1", ylab="Coordinate 2",
+     main="Metric MDS of all samples", type="n")
+text(x, y, labels = colnames(df), cex=.7, col = sgCol)
+
+# iterative MDS
+fit <- isoMDS(reciprocal.dist, k=2)
+fit # view results
+
+# plot solution
+x <- fit$points[,1]
+y <- fit$points[,2]
+plot(x, y, xlab="Coordinate 1", ylab="Coordinate 2",
+     main="Nonmetric MDS", type="n")
+text(x, y, labels = colnames(df), cex=.7, col = sgCol) 
 
 
 
