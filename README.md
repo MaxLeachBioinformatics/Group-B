@@ -1,4 +1,4 @@
-# Main Repo for SRP GrpB, a.k.a. the PARASITE(2023)
+# Main Repo for GrpB, a.k.a. the PARASITE(2023)
 <i>Remember when life itself seems lunatic, who knows where madness lies?</i><br/>
 <i>Perhaps to be too practical is madness.</i><br/><br/>
 Howdy Visitors! The broken doors are open — come and enter and be home.<br/>
