@@ -9,7 +9,13 @@ Main Contributors of the project are:<br/>
 <br/><br/>You can find the Python, R, shell (or PBS), AWK scripts and the graphs of the project in the respective folders.
 <br/>Please see the branch "history" for the contribution history and different file versions.<br/>
 All the count matrices are available at: https://www.dropbox.com/scl/fo/t4e5iu2wz9rtcgkyexpr3/h?dl=0&rlkey=36be0ujlxvsvbugm4fzv2847c
-<br/><br/>Should there is any query, please do not hesitate to contact me (Max), Lois, Jon or Marco.
+<br/>Major findings:<br/>
+![cluster mapping](https://github.com/MaxLeachBioinformatics//Group-B/blob/main/Original_Pipeline/figures/raw/Comparsion.jpeg?raw=true)<br/>
+![samllvis](https://github.com/MaxLeachBioinformatics/Group-B/blob/main/Original_Pipeline/figures/raw/smallvi_combined.gif?raw=true)<br/>
+![MDS](https://github.com/MaxLeachBioinformatics/Group-B/blob/main/Original_Pipeline/figures/raw/iterativeMDS.png?raw=true)<br/>
+![fetal group](https://github.com/MaxLeachBioinformatics/Group-B/blob/main/Original_Pipeline/figures/raw/MST_fetal.png?raw=true)<br/>
+![fetal HLA](https://github.com/MaxLeachBioinformatics/Group-B/blob/main/Original_Pipeline/figures/raw/HLA-A.png?raw=true)<br/>
+<br/>Should there is any query, please do not hesitate to contact me (Max), Lois, Jon or Marco.
 <hr>
-References:<br/><br/>
-<i>Darmanis, S., Sloan, S. A., Zhang, Y., Enge, M., Caneda, C., Shuer, L. M., Hayden Gephart,M. G., Barres, B. A., & Quake, S. R. (2015). A survey of human brain transcriptome diversityat the single cell level. Proceedings of the National Academy of Sciences of the United Statesof America, 112(23), 7285–7290.</i>
+References:<br/>
+<br/><i>Darmanis, S., Sloan, S. A., Zhang, Y., Enge, M., Caneda, C., Shuer, L. M., Hayden Gephart,M. G., Barres, B. A., & Quake, S. R. (2015). A survey of human brain transcriptome diversityat the single cell level. Proceedings of the National Academy of Sciences of the United Statesof America, 112(23), 7285–7290.</i>
