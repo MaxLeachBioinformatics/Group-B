@@ -7,7 +7,8 @@ We are the Academy Award-winning Group B.<br/><br/>
 In this project, we attempted to reproduce the findings of Darmanis et al.(2015).<br/>
 Main Contributors of the project are:<br/>
   ![GitHub Contributors Image](https://contrib.rocks/image?repo=MaxLeachBioinformatics/Group-B)
-<br/><br/>Please see the branch "history" for the contribution history and different file versions.<br/>
+<br/><br/>You can find the Python, R, shell (or PBS), AWK scripts and the graphs of the project in the respective folders.
+<br/>Please see the branch "history" for the contribution history and different file versions.<br/>
 All the count matrices are available at: https://www.dropbox.com/scl/fo/t4e5iu2wz9rtcgkyexpr3/h?dl=0&rlkey=36be0ujlxvsvbugm4fzv2847c
 <br/><br/>Should there is any query, please do not hesitate to contact me (Max), Lois, Jon or Marco.
 <hr>
