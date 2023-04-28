@@ -2,9 +2,8 @@
 <i>Remember when life itself seems lunatic, who knows where madness lies?</i><br/>
 <i>Perhaps to be too practical is madness.</i><br/><br/>
 Howdy Visitors! The broken doors are open — come and enter and be home.<br/>
-This is our repository for the BS7120 Steered-Research Project.<br/>
-We are the Academy Award-winning Group B.<br/><br/>
-In this project, we attempted to reproduce the findings of Darmanis et al.(2015).<br/>
+This is our repository for the BS7120 Steered-Research Project.  We are the Academy Award-winning Group B.<br/><br/>
+In this project, we attempted to reproduce the findings of Darmanis et al.(2015).  We replicated the analysis pipelines in attempt to validate its results and examine its accuracy as well as evaluate the robustness of the described method.  We hope to gain additional insights by implementing an alternative data analysis pipeline and perform an unbiased appraisal.<br/><br/>
 Main Contributors of the project are:<br/>
   ![GitHub Contributors Image](https://contrib.rocks/image?repo=MaxLeachBioinformatics/Group-B)
 <br/><br/>You can find the Python, R, shell (or PBS), AWK scripts and the graphs of the project in the respective folders.
