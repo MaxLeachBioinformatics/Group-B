@@ -26,5 +26,5 @@ WORKDIR="/home/y/yyl23/R_analysis/BS7120"
 cd $WORKDIR
 
 # invoke R
-R --no-save -q -f original_pipeline_scde_unbiased.R
+R --no-save -q -f Original_pipeline_scde_unbiased.R
 
